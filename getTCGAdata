@@ -1,0 +1,35 @@
+# Get TCGA data bia TCGAbiolinks in R
+
+# 1. Download the data
+
+library(TCGAbiolinks)
+query <- GDCquery(project="TCGA-LIHC", data.category="Transcriptome Profiling", data.type="Gene Expression Quantification", workflow.type="HTSeq - Counts")
+# liver cancer
+GDCdownloads(query)
+
+# 2. Preparing dataset
+
+data <- GDCprepare(query)
+library(SummarizedExperiment)
+eset <- assay(data)
+write.csv(eset, file = "GE.csv") 
+
+# 3. Extract gene and sample informaion
+
+genes.info <- rowRanges(eset)
+sample.info <- colData(eset)
+
+# 4. Normalization
+
+dataNorm <- TCGAanalyze_Normalization(eset, geneInfo)
+
+# 5. Differential expression analysis (Normal vs Tumor)
+
+dataFilt <- TCGAanalyze_Filtering(tabDF = eset, method = "quantile", qnt.cut = 0.25)
+samplesNT <- TCGAquery_SampleTypes(colnames(dataFilt), typesample = c("NT"))
+samplesTP <- TCGAquery_SampleTypes(colnames(dataFilt), typesample = c("TP"))
+dataDEGs <- TCGAanalyze_DEA(mat1 = dataFilt[,samplesNT], mat2 = dataFilt[,samplesTP], Cond1type = "Normal", Cond2type = "Tumor")
+
+# 6. Write data 
+
+write.csv(dataDEGs, file = "DEG.csv")
