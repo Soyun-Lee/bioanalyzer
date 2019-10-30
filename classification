@@ -1,0 +1,25 @@
+# Define classification function
+classification <- function(name){
+N <- c("11","12","13","14","15","16","17","18","19")
+T <- c("01","02","03","04","05","06","07","08","09")
+lastNum <- substr(name,nchar(name)-1,nchar(name))
+  if(lastNum %in% N){
+      return("Normal")
+   }else if (lastNum %in% T){
+      return("Tumor")
+   }else{return("Control")}
+ }
+
+# df -> GE (Matrix)
+df <- read.csv(file = "GE.csv")
+
+matrixColNames = colnames(df)
+groupName = sapply(matrixColNames,classification)
+
+# 맨 아래에 붙이기
+df = rbind(df,groupName)
+
+
+# 맨 위에 붙이기
+#df = rbind(groupName,df)
+
