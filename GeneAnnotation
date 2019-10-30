@@ -1,0 +1,21 @@
+# Read csv file
+DEG <- read.csv(file = "DEG.csv")
+
+# Use library biomaRt
+libary(biomaRt)
+mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+
+# Return Gene symbol list according to ensembl id in the file (X)
+G_list <- getBM(filters="ensembl_gene_id", attributes=c("ensembl_gene_id","hgnc_symbol"),values=DEG$X,mart=mart)
+            
+# Before merge G_list and DEG, make space in DEG
+DEG$Gene_symbol = ""
+
+# Merge mached gene symbol and Ensembl id
+GE["Gene_symbol"] = lapply("hgnc_symbol", function(x) G_list[[x]][match(GE$X, G_list$ensembl_gene_id)])
+
+# Search Gene symbol 
+subset(DEG, Gene_symbol == "TP53")
+subset(DEF, X == "ENSG00000137693")
+
+q()
